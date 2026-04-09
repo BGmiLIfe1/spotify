@@ -1,4 +1,6 @@
 {
-    "title" : "Pyar ke Saathi",
-    "description" : "songs for Lovers"
+  "title": "CS Playlist",
+  "description": "No Copyright Songs",
+  "artist": "NCS",
+  "songs": ["O Sajni Re.mp3", "Paon Ki Jutti.mp3", "Raanjhana Ve Slowed Reverb.mp3", "Soulmate.mp3", "Tu Aashiqui Hai Meri.mp3", "Gulabi Sadi Ani Lali.mp3"]
 }
