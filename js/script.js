@@ -1,4 +1,3 @@
-
 let currentsong = new Audio();
 let songs = [];
 let currFolder;
@@ -42,7 +41,7 @@ async function getsongs(folder) {
       </li>`;
   }
 
-  // Add click event
+  // Click on song
   Array.from(songUL.getElementsByTagName("li")).forEach((e) => {
     e.addEventListener("click", () => {
       let track = e.querySelector(".info div").innerText;
@@ -68,52 +67,52 @@ function playMusic(track, pause = false) {
 
 // Display albums
 async function displayAlbums() {
-  let res = await fetch(`/song/`);
-  let text = await res.text();
-
-  let div = document.createElement("div");
-  div.innerHTML = text;
-
-  let anchors = div.getElementsByTagName("a");
   let cardContainer = document.querySelector(".cardContainer");
+  cardContainer.innerHTML = "";
 
-  let array = Array.from(anchors);
+  let folders = ["cs", "ncs"]; // you can later replace with JSON
 
-  for (let e of array) {
-    if (e.href.includes("/song") && !e.href.includes(".htaccess")) {
-      let folder = e.href.split("/").slice(-2)[0];
+  for (let folder of folders) {
+    let res = await fetch(`/song/${folder}/info.json`);
+    let data = await res.json();
 
-      let res = await fetch(`/song/${folder}/info.json`);
-      let data = await res.json();
+    let div = document.createElement("div");
+    div.className = "card";
+    div.dataset.folder = folder;
 
-      cardContainer.innerHTML += `
-        <div data-folder="${folder}" class="card">
-          <div class="play">
-            ▶
-          </div>
-          <img src="/song/${folder}/cover.jpg" alt="">
-          <h2>${data.title}</h2>
-          <p>${data.description}</p>
-        </div>`;
-    }
+    div.innerHTML = `
+      <div class="play">▶</div>
+      <img src="/song/${folder}/cover.jpg" alt="">
+      <h2>${data.title}</h2>
+      <p>${data.description}</p>
+    `;
+
+    cardContainer.appendChild(div);
   }
 
-  // Click album
-  Array.from(document.getElementsByClassName("card")).forEach((card) => {
-    card.addEventListener("click", async () => {
-      songs = await getsongs(`song/${card.dataset.folder}`);
-      playMusic(songs[0]);
-    });
+  // ✅ EVENT DELEGATION (FIXED)
+  cardContainer.addEventListener("click", async (e) => {
+    let card = e.target.closest(".card");
+    if (!card) return;
+
+    let folder = card.dataset.folder;
+    console.log("Clicked folder:", folder);
+
+    let songsList = await getsongs(`/song/${folder}`);
+
+    if (songsList.length > 0) {
+      playMusic(songsList[0]);
+    }
   });
 }
 
 // Main function
 async function main() {
   // Default load
-  await getsongs("song/ncs");
+  await getsongs("/song/ncs");
   playMusic(songs[0], true);
 
-  displayAlbums();
+  await displayAlbums();
 
   const playBtn = document.getElementById("play");
   const prevBtn = document.getElementById("Previous");
@@ -147,17 +146,41 @@ async function main() {
     currentsong.currentTime = (currentsong.duration * percent) / 100;
   });
 
-  // Previous
-  prevBtn.addEventListener("click", () => {
-    let index = songs.indexOf(currentsong.src.split("/").pop());
-    if (index > 0) playMusic(songs[index - 1]);
-  });
+  // // Previous
+  // prevBtn.addEventListener("click", () => {
+  //   let index = songs.indexOf(currentsong.src.split("/").pop());
+  //   if (index > 0) playMusic(songs[index - 1]);
+  // });
 
-  // Next
-  nextBtn.addEventListener("click", () => {
-    let index = songs.indexOf(currentsong.src.split("/").pop());
-    if (index < songs.length - 1) playMusic(songs[index + 1]);
-  });
+  // // Next
+  // nextBtn.addEventListener("click", () => {
+  //   let index = songs.indexOf(currentsong.src.split("/").pop());
+  //   if (index < songs.length - 1) playMusic(songs[index + 1]);
+  // });
+
+  // Previous
+prevBtn.addEventListener("click", () => {
+  let current = decodeURIComponent(currentsong.src.split("/").pop());
+  let index = songs.indexOf(current);
+
+  console.log("Current:", current, "Index:", index); // debug
+
+  if (index > 0) {
+    playMusic(songs[index - 1]);
+  }
+});
+
+// Next
+nextBtn.addEventListener("click", () => {
+  let current = decodeURIComponent(currentsong.src.split("/").pop());
+  let index = songs.indexOf(current);
+
+  console.log("Current:", current, "Index:", index); // debug
+
+  if (index < songs.length - 1 && index !== -1) {
+    playMusic(songs[index + 1]);
+  }
+});
 
   // Volume
   let volumeSlider = document.querySelector(".range input");
