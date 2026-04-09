@@ -1,4 +1,6 @@
 {
-    "title" : "Arjit singh Playlist",
-    "description" : "songs for Heart"
+  "title": "Arjit singh Playlistt",
+  "description": "songs for Heart",
+  "artist": "Arjit sing",
+  "songs": ["Khamoshiyan.mp3", "Lutt Putt Gaya.mp3", "O Mahi O Mah.mp3", "O Sajni Re.mp3", "Sajde.mp3", "Tera Yaar Hoon Main.mp3"]
 }
